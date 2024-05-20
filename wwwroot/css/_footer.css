@@ -1,0 +1,7 @@
+:root{
+  --color1 : rgb(0, 0, 69);
+}
+
+#footer-edit{
+    background-color: var(--color1);
+  }

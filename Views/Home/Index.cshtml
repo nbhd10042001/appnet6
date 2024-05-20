@@ -1,0 +1,94 @@
+﻿@using App.Models.Blog
+@using App.Models.Product
+@{
+    ViewData["Title"] = "Home Page"; 
+
+    var products = ViewBag.products as IQueryable<ProductModel>;
+    var posts = ViewBag.posts as IQueryable<Post>;
+
+}
+
+<partial name="_AlertMessage"></partial>
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<h2>Products</h2>
+
+<div class="d-flex flex-wrap justify-content-between">
+    @foreach(var product in products)
+    {
+        var srcImg = "/contents/noImg.png";
+        if (product.Photos.Any())
+        {
+            srcImg = $"/contents/Products/{product.Photos.FirstOrDefault().FileName}";
+        }
+
+        <div class="card mb-2" style="width: 24%;">
+            <img src="@srcImg" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">@product.Title</h5>
+                <p class="card-text text-truncation">@product.Description</p>
+                <p>
+                    <i class="text-danger">
+                        @string.Join(", " , product.ProductCategoryProducts.Select(pc => pc.CategoryProduct.Title))
+                    </i>
+                </p>
+                <p>Price: <strong>@product.Price</strong></p>
+            </div>
+
+            <div class="card-footer">
+                <a class="card-link" asp-controller="ViewProduct" asp-action="Detail" asp-route-productslug="@product.Slug" style="text-decoration:none;">
+                    Xem chi tiet
+                </a>
+                <a asp-action="AddToCart" asp-route-productid="@product.ProductId" class="btn btn-success mx-2">
+                    Đặt hàng
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<h2>Posts</h2>
+@foreach(var post in posts)
+{
+    <div class="media border-bottom border-primary mb-3 pb-3">
+        <img class="mr-3" style="width: 80px;" src="/contents/noImg.png" alt="Generic placeholder image">
+        <div class="media-body">
+            <h5 class="mt-0">
+                <a asp-controller="ViewPost" asp-action="Detail" asp-route-postslug="@post.Slug" style="text-decoration:none;">
+                    @post.Title
+                </a>
+            </h5>
+            @post.Description
+            <div>
+                Chu de:
+                <strong class="text-danger">
+                    @string.Join(", " , post.PostCategories.Select(pc => pc.CategoryModel.Title))
+                </strong>
+            </div>
+
+            <div class="author-row">
+                Author: <strong>@post.Author.UserName</strong>
+                Date Update: <i>@post.DateUpdated.ToShortDateString()</i>
+            </div>
+        </div>
+    </div>
+}
+
+
+@* <textarea id="summernoteEditor"></textarea>
+<textarea id="summernoteEditor2"></textarea>
+
+    using App.Models.Product;
+
+@{
+  var summernote = new App.Models.Summernote("#summernoteEditor");
+  var summernote2 = new App.Models.Summernote("#summernoteEditor2", loadLibrary:false);
+}
+
+<partial name="_Summernote" model="summernote"></partial>
+<partial name="_Summernote" model="summernote2"></partial> *@
+

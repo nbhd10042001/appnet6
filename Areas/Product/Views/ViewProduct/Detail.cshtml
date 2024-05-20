@@ -1,0 +1,91 @@
+@using App.Models.Product
+@using static App.Views.Shared.Components.CategoryProductSidebar
+
+@model App.Models.Product.ProductModel
+
+@{
+    List<CategoryProductModel> categories = ViewBag.categories as List<CategoryProductModel>;
+    CategoryProductModel category = ViewBag.category as CategoryProductModel;
+    ViewData["Title"] = Model.Title;
+
+    IQueryable<ProductModel> otherProducts = ViewBag.otherProducts as IQueryable<ProductModel>;
+}
+
+@* Breadcrumb *@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a style="text-decoration: none;" asp-action="Index" asp-route-categoryslug="@null">
+            Home
+        </a>
+    </li>
+
+    @if(category != null)
+    {
+        var list = category.GetListParents();
+        foreach(var item in list)
+        {
+            <li class="breadcrumb-item">
+                <a style="text-decoration: none;" asp-action="Index" asp-route-categoryslug="@item.Slug">
+                    @item.Title
+                </a>
+            </li>
+        }
+        <li class="breadcrumb-item">
+            <div class="">@Model.Title</div>
+        </li>
+    }
+  </ol>
+</nav>
+
+
+<div class="detail-post">
+    <h1>@Model.Title</h1>
+    <div class="sapo">@Model.Description</div>
+
+    <div><p>Price: <strong>@Model.Price</strong></p></div>
+
+    <a asp-action="AddToCart" asp-route-productid="@Model.ProductId" class="btn btn-success">
+        Dat hang
+    </a>
+
+    <div>
+        <i>Update: @Model.DateUpdated</i> / Author: <strong>@Model.Author.UserName</strong>
+    </div>
+
+    @if(Model.Photos.Any())
+    {
+        <div class="d-flex flex-wrap">
+            @foreach(var photo in Model.Photos)
+            {
+                <img class="w-50" src="/contents/Products/@photo.FileName">
+            }
+        </div>
+    }
+
+    <hr>
+    @Html.Raw(Model.Content)
+</div>
+
+@section Sidebar{
+    @* goi func invoke trong CategorySidebar.cs va truyen tham so data*@
+    @await Component.InvokeAsync("App.Views.Shared.Components.CategoryProductSidebar", 
+                                new CategoryProductSidebarData()
+                                {
+                                    Categories = categories,
+                                    level = 0,
+                                    categorySlug = ViewBag.categoryslug
+                                })
+    
+    @* Hien thi cac Post moi nhat *@
+    <ul class="list-group"> 
+        @foreach(var product in otherProducts)
+        {
+            <li class="list-group-item">
+                <a style="text-decoration:none" asp-asp-controller="ViewProduct" asp-action="Detail" asp-route-productslug="@product.Slug">
+                    @product.Title
+                </a>
+            </li>
+        }
+    </ul>
+}

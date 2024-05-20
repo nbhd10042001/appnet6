@@ -1,0 +1,48 @@
+@using static App.Views.Shared.Components.CategoryProductSidebar
+@model App.Views.Shared.Components.CategoryProductSidebar.CategoryProductSidebarData;
+
+@{
+    int level = Model.level;
+}
+
+@if(Model.Categories.Count > 0)
+{
+    @if(level == 0)
+    {
+        @Html.Raw("<div class=\"categorysidebar\">")
+        <h3>
+            <a class="link-primary" asp-controller="ViewProduct" asp-action="Index" asp-route-categoryslug="">
+                Chuyên mục sản phẩm
+            </a>
+        </h3>
+    }
+
+    <ul>
+        @foreach(var cate in Model.Categories)
+        {
+            // kiem tra neu ta click cac cate thi them class active o tag click
+            var cssActive = (cate.Slug == Model.categorySlug) ? "active" : null;
+            <li>
+                <a class="@cssActive" asp-controller="ViewProduct" asp-action="Index" asp-route-categoryslug="@cate.Slug">
+                    @cate.Title
+                </a>
+
+                @if(cate.ChildrenCategory?.Count > 0)
+                {
+                    @await Component.InvokeAsync("App.Views.Shared.Components.CategoryProductSidebar", 
+                                new CategoryProductSidebarData()
+                                {
+                                    Categories = cate.ChildrenCategory.ToList(),
+                                    level = level + 1,
+                                    categorySlug = ViewBag.categoryslug
+                                })
+                }
+            </li>
+        }
+    </ul>
+
+    @if(level == 0)
+    {
+        @Html.Raw("</div>")
+    }
+}

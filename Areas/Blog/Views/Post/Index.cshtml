@@ -1,0 +1,89 @@
+@model IEnumerable<App.Models.Blog.Post>
+
+@using App.Services
+@inject SidebarAdminService _sidebarAdminService
+
+@{
+    ViewData["Title"] = "Posts";
+    Layout = "_LayoutAdmin";
+
+}
+
+<h1>Danh sach Bai viet</h1>
+
+<partial name="_AlertMessage"></partial>
+
+<p>
+    <a class="btn btn-primary btn-sm" asp-action="Create">Create New</a>
+</p>
+
+<p>Tong so bai viet: @ViewBag.totalPosts</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateCreated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DateUpdated)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Published)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @(++ViewBag.postIndex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+                <br>
+                <small>
+                    @string.Join(", " , item.PostCategories.Select(pc => pc.CategoryModel.Title))
+                </small>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateCreated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateUpdated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Published)
+            </td>
+            <td>
+                <a id="app-tag-a" asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
+                <a id="app-tag-a" asp-action="Details" asp-route-id="@item.PostId">Details</a> |
+                <a id="app-tag-a-dele" asp-action="Delete" asp-route-id="@item.PostId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+<partial name="_PagingXTL" model="@ViewBag.pagingmodel" />
+
+@{
+    _sidebarAdminService.SetActive("Post", "Index", "Blog");
+}
+
+@section Sidebar
+{
+    @Html.Raw(_sidebarAdminService.RenderHtml())
+}

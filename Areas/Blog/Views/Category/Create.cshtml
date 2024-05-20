@@ -1,0 +1,64 @@
+@model App.Models.Blog.CategoryModel
+@using App.Services
+@inject SidebarAdminService _sidebarAdminService
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "_LayoutAdmin";
+
+}
+
+<h1>Tao chuyen muc Blog</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <textarea rows="5" asp-for="Content" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Slug" class="control-label"></label>
+                <input asp-for="Slug" class="form-control" />
+                <span asp-validation-for="Slug" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ParentCategoryId" class="control-label"></label>
+                <select asp-for="ParentCategoryId" class ="form-control" asp-items="ViewBag.ParentCategoryId"></select>
+            </div>
+            <label for=""></label>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary btn-lg" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@{
+  var summernote = new App.Models.Summernote("#Content"){
+    height = 500
+  };
+}
+
+<partial name="_Summernote" model="summernote"></partial>
+
+@{
+    _sidebarAdminService.SetActive("Category", "Index", "Blog");
+}
+
+@section Sidebar
+{
+    @Html.Raw(_sidebarAdminService.RenderHtml())
+}
