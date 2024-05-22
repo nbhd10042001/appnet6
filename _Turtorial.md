@@ -176,7 +176,7 @@
   - Thực hiện publish dự án:
     > dotnet publish -c Release -o app/publish
   - Lưu ý: vì ta cấu hình thêm tùy chọn StaticFile lưu ảnh ở thư mục Uploads mà khi ta publish dự án này thì hệ thống không có tự động thêm vào thư mục Uploads để lưu ảnh (vì mặc định hệ thống sẽ lưu vào wwwroot) => dẫn đến lỗi khi ta chạy publish app. Để xử lí lỗi này thì ta vào thư mục app/publish và tạo 1 thư mục tên Uploads.
-  - Đi tới đường dẫn app/publish:
+  - Đi tới đường dẫn app/publish để kiểm tra:
     > dotnet App.dll
   - Cài đặt VirtualBox và Vagrant. (mở powershell và nhập lệnh vagrant version để kiểm tra vagrant)
   - Tạo thư mục Vagrant và tạo file Vagrantfile bên trong. Sau đó thiết lập cấu hình để Vagrant tự động hóa tạo máy ảo trên VirtualBox
@@ -188,6 +188,7 @@
     > Controll Panel -> Region -> Administrative -> Change system locale… -> Current system locale -> English (United States)
   - Tạo file install.sh để chạy các lệnh trên powerShell và thêm config để chạy install.sh trong Vagrantfile
   - Thực hiện lệnh vagrant up (đợi vài phút để máy ảo được cài đặt các package và lệnh trong install.sh)
+
   - Sau khi hoàn tất ta mở powershell và thực hiện:
     > ssh root@192.168.10.99 (nhập yes để tiếp tục)
     > nhập password cho tài khoản root là 123
@@ -197,7 +198,8 @@
     > dotnet --version
   - Lưu ý khi gặp lỗi "Host key verification failed" thì nhập lệnh 
     > ssh-keygen -R <ip> (sau đó ssh <user>@<server> để truy cập lại)
-  - cấu hình phiên bản, password sa
+    
+  - cấu hình phiên bản, password sa cho mssql-server
     > sudo /opt/mssql/bin/mssql-conf setup
     > Chọn edition 3-Express (free)
     > Chấp nhận license -> yes
@@ -206,10 +208,79 @@
   - Kích hoạt máy chủ Apache bằng lệnh:
     > systemctl enable httpd
     > systemctl start httpd
-  - Mặc định máy chủ chạy ở cổng 80 (nhập url 192.168.10.99:80 nó sẽ hiển thị máy chủ Apache)
+  - Mặc định máy chủ chạy ở cổng 80 (nhập url 192.168.56.99:80 nó sẽ hiển thị máy chủ Apache)
   - Tạo 1 tài khoản user mới (hạn chế dùng user root để đảm bảo an toàn)
     > useradd aspnet (Mặc định hệ thống tạo 1 thư mục user ở home (cd /home/ -> ls))
     > passwd aspnet (đặt mật khẩu tùy ý - 123)
   - Mở terminal của dự án, thực hiện lệnh copy toàn bộ file publish và dán vào thư mục home/aspnet trên máy ảo:
-    > scp -r app/publish/ aspnet@192.168.10.99:/home/aspnet/
-    
+    > scp -r app/publish/ root@192.168.56.99:/home/aspnet/
+  - Lưu ý: Nếu xảy ra sự cố không copy toàn bộ file thì ta xóa đi thư mục app/publish của dự án và chạy lệnh:
+    > dotnet publish -c Release -o app/publish
+    > scp -r app/publish/* root@192.168.56.99:/home/aspnet/publish (cần tạo thư mục publish bên máy ảo)
+
+  - Thiết lập service tự động reset khi ứng dụng bị crash
+    > nhập dòng lệnh trên máy ảo: "vi /etc/systemd/system/appmvc.service"
+    > 1 cửa sổ chương trình soạn VI hiển thị -> nhấn nút I để soạn thảo
+    > nội dung soạn thảo nằm trong file Readme.md
+    > Kiểm tra đường dẫn dotnet có chính xác ở mục soạn nội dụng ExecStart? nhập which dotnet để kiểm tra.
+    > Nhấn nút Esc và nhập :wq để lưu và thoát
+    > systemctl enable appmvc
+    > systemctl start appmvc
+    > systemctl status appmvc
+  - Lưu ý: nếu có thay đổi nội dung appmvc.service thì sau khi thay đổi xong ta thực hiện lệnh
+    > systemctl daemon-reload
+    > systemctl restart appmvc
+
+  - Kích hoạt dịch vụ firewall 
+    > systemctl enable firewalld
+    > systemctl start firewalld
+    > firewall-cmd --list-service (kiểm tra service nào đi qua được firewall)
+    > firewall-cmd --permanent --zone=public --add-service=http
+    > firewall-cmd --permanent --zone=public --add-service=https
+    > firewall-cmd --reload
+  
+  - Thiết lập máy chủ httpd
+    > httpd -V
+    > vi /etc/httpd/conf/httpd.conf
+    > Cài đặt thêm extension trên visual code là Remote SSH
+    > Sau khi cài xong ta thực hiện: View -> Command Palette -> nhập Remote-SSH: Connect to Host
+    > Sau đó nhập root@192.168.56.99 -> Enter -> Chọn thư mục lưu config -> Chọn Connect ở bảng thông báo Host added!
+    > Chọn platform và nhập password đăng nhập root
+    > Một cửa sổ Visual Code khác hiện lên và bên dưới góc trái có biểu tượng kết nối tới SSH: 192.168.56.99
+    > Sau đó Open Folder và tìm theo đường dẫn /etc/httpd/conf/httpd.conf
+    > Kéo xuống dưới cùng của file httpd.conf và nhập nội dung (in Readme.md) các thiết lập máy chủ Apache. 
+    > Cách 2: Tạo 1 file <name>.conf trong thư mục /etc/httpd/conf.d và chèn nội dung thiết lập.
+      - Có thể tạo trực tiếp file .conf khi connect SSH thông qua Remote trên Visual Code
+      - Nhập lệnh trên PowerShell (SSH root)
+        > vi /etc/httpd/conf.d/appmvc.conf
+        > Nhấn I và chèn nội dung thiết lập
+        > Esc -> nhập :wq để lưu và thoát
+
+  - Tạo 1 domain ảo: 
+    > Mở PowerShell mới và nhập "code C:\Windows\System32\drivers\etc\hosts"
+    > nhập 192.168.56.99 appmvc.net trong file hosts
+
+  - Tự động kiểm tra chứng chỉ cert, nhập các lệnh vào PowerShell(ssh)
+    > mkdir /certtest
+    > cd /certtest/
+    > openssl genrsa -out ca.key 2048
+    > openssl req -new -key ca.key -out ca.csr (enter để giữ nguyên các thiét lập)
+    > openssl x509 -req -days 365 -in ca.csr -signkey ca.key -out ca.crt
+  - Khởi động lại máy chủ: systemctl restart httpd
+  - Lưu ý: Khi gặp những lỗi liên quan đến máy chủ Apache:
+    > sudo apachectl configtest   (test và log error)
+    > journalctl -xe
+  - Lưu ý: Mỗi khi cập nhật dự án và copy qua máy ảo thì phải stop lại dịch vụ appmvc
+    > systemctl stop appmvc
+
+  - Cấu hình máy chủ Nginx
+    > systemctl disable httpd
+    > systemctl stop httpd
+    > systemctl enable nginx
+    > systemctl start nginx
+    > nginx -t  (xem file cấu hình nginx nằm ở đâu?)
+    > Tạo file cấu hình proxy theo đường dẫn: /etc/nginx/proxy.conf 
+    > Chèn nội dung cấu hình nginx và proxy (nằm trong Readme.md)
+    > Ta thiết lập nginx.conf nạp thêm file proxy.conf
+      - Chèn nội dung vào đầu khối http (nội dung ở Readme.md)
+    > systemctl restart nginx

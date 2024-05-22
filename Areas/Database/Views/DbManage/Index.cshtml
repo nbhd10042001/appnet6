@@ -7,7 +7,7 @@
 @inject AppDbContext dbContext;
 @inject UserManager<AppUser> _userManager;
 
-@{
+@* @{
     ViewData["Title"] = "Thong tin DB";
 
     var connect = dbContext.Database.GetDbConnection();
@@ -74,8 +74,8 @@ else
         }
     </ul>
     
-    <a class="btn btn-danger" asp-controller="DbManage" asp-action="DeleteDB">Delete Databse : @dbname</a>
-    <a class="btn btn-warning" asp-controller="DbManage" asp-action="SeedData">Seed Databse</a>
+    <a class="btn btn-danger" asp-area="Database" asp-controller="DbManage" asp-action="DeleteDB">Delete Databse : @dbname</a>
+    <a class="btn btn-warning" asp-area="Database" asp-controller="DbManage" asp-action="SeedData">Seed Databse</a>
 }
 
 @{
@@ -85,4 +85,4 @@ else
 @section Sidebar
 {
     @Html.Raw(_sidebarAdminService.RenderHtml())
-}
+} *@

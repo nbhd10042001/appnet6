@@ -40,10 +40,10 @@
             </div>
 
             <div class="card-footer">
-                <a class="card-link" asp-controller="ViewProduct" asp-action="Detail" asp-route-productslug="@product.Slug" style="text-decoration:none;">
+                <a class="card-link" asp-area="Product" asp-controller="ViewProduct" asp-action="Detail" asp-route-productslug="@product.Slug" style="text-decoration:none;">
                     Xem chi tiet
                 </a>
-                <a asp-action="AddToCart" asp-route-productid="@product.ProductId" class="btn btn-success mx-2">
+                <a asp-area="Product" asp-controller="ViewProduct" asp-action="AddToCart" asp-route-productid="@product.ProductId" class="btn btn-success mx-2">
                     Đặt hàng
                 </a>
             </div>
@@ -58,7 +58,7 @@
         <img class="mr-3" style="width: 80px;" src="/contents/noImg.png" alt="Generic placeholder image">
         <div class="media-body">
             <h5 class="mt-0">
-                <a asp-controller="ViewPost" asp-action="Detail" asp-route-postslug="@post.Slug" style="text-decoration:none;">
+                <a asp-area="Blog" asp-controller="ViewPost" asp-action="Detail" asp-route-postslug="@post.Slug" style="text-decoration:none;">
                     @post.Title
                 </a>
             </h5>

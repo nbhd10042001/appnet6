@@ -21,6 +21,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        //...
+        // builder.WebHost.ConfigureKestrel(serverOptions =>
+        // {
+        //     // serverOptions.ListenAnyIP(8090); // to listen for incoming http connection on port 5001
+        //     // serverOptions.ListenAnyIP(7001, listenOptions => listenOptions.UseHttps()); // to listen for incoming https connection on port 7001
+        //     // serverOptions.ListenLocalhost(8090);
+        //     // serverOptions.ListenLocalhost(7001, opts => opts.UseHttps());
+        // });
+        //...
+
+        builder.WebHost.UseKestrel().UseUrls("http://0.0.0.0:5000");
+
         // cau hinh connect string trong appsettings.json
         var connectString = builder.Configuration.GetConnectionString("AppMvcConnectionString");
         builder.Services.AddDbContext<AppDbContext>(options => {

@@ -5,7 +5,7 @@ Vagrant.configure(2) do |config|                # Bắt đầu khai báo máy �
    config.vm.box = 'centos/7'                    # Sử dụng Box centos/7 tạo máy ảo
    #config.vm.box = 'ubuntu/focal64'                    # Sử dụng Box ubuntu/focal64 tạo máy ảo
 
-   config.vm.network "private_network", ip: "192.168.10.99"   # Lập IP cho máy ảo
+   config.vm.network "private_network", ip: "192.168.56.99"   # Lập IP cho máy ảo
    config.vm.hostname = "aspnet"             # Đặt hostname cho máy ảo
 
    # config.vm.synced_folder '.', '/data/mydata/'  # Chia sẻ thư mục máy host và máy ảo
